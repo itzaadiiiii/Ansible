@@ -1,0 +1,21 @@
+[myhost]
+localhost ansible_connection=local
+
+[dev]
+managed-node-01.example.com hostVariableName=hostVariableValue ansible_connection=ssh
+
+[qa]
+managed-node-02.example.com
+
+#[centos]
+#managed-node-03.example.com     ansible_user=centos
+
+[myhost:vars]
+username=myusername
+password=mypassword 
+
+#[centos]
+#managed-node-03.example.com ansible_user=centos
+
+#[qa:vars]
+#ansible-ssh_private_key_file=/home/ec2-user/.ssh/aws.pem
