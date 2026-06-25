@@ -1,0 +1,35 @@
+name: Terraform Apply and Dispatch
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  terraform_apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ap-south-1
+        run: terraform apply -auto-approve -var-file=terraform.tfvars
+
+      - name: Trigger Ansible repo dispatch
+        if: success()
+        env:
+          GITHUB_TOKEN_FOR_DISPATCH: ${{ secrets.ANSIBLE_REPO_PAT }}
+          ANSIBLE_REPO: ${{ secrets.ANSIBLE_REPO }}
+        run: |
+          echo "Triggering repository_dispatch on ${ANSIBLE_REPO}"
+          curl -X POST             -H "Accept: application/vnd.github+json"             -H "Authorization: Bearer ${GITHUB_TOKEN_FOR_DISPATCH}"             https://api.github.com/repos/${ANSIBLE_REPO}/dispatches             -d '{"event_type":"run-ansible","client_payload":{"trigger":"terraform","ref":"main"}}'

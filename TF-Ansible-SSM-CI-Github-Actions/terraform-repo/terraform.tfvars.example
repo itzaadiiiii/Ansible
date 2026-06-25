@@ -1,0 +1,8 @@
+# Copy to terraform.tfvars and fill values
+aws_region         = "ap-south-1"
+subnet_id          = "subnet-xxxxxxxx"
+security_group_ids = ["sg-xxxxxxxx"]
+project            = "Slash"
+env                = "Dev"
+instance_count     = 1
+name_prefix        = "slash-web"
