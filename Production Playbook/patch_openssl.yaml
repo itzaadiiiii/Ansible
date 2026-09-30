@@ -1,0 +1,27 @@
+---
+- name: Patch OpenSSL on production servers
+  hosts: app_servers
+  become: true
+  serial: 2
+
+  tasks:
+
+    - name: Update OpenSSL
+      ansible.builtin.package:
+        name: openssl
+        state: latest
+
+    - name: Restart application
+      ansible.builtin.systemd:
+        name: myapp
+        state: restarted
+
+    - name: Verify application
+      ansible.builtin.uri:
+        url: "http://localhost:8080/actuator/health"
+        status_code: 200
+        timeout: 10
+      register: health
+      retries: 5
+      delay: 10
+      until: health.status == 200
